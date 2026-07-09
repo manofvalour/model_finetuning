@@ -1,0 +1,54 @@
+{
+  "model": {
+    "model_name_or_path": "meta-llama/Llama-2-13b-hf",
+    "use_flash_attention": true,
+    "trust_remote_code": false
+  },
+  "quantization": {
+    "use_4bit": true,
+    "bnb_4bit_compute_dtype": "bfloat16",
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": true
+  },
+  "lora": {
+    "r": 128,
+    "lora_alpha": 32,
+    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+    "lora_dropout": 0.05,
+    "bias": "none"
+  },
+  "data": {
+    "dataset_name": "nguha/legalbench",
+    "dataset_config": "contract_nli_confidentiality_of_agreement",
+    "text_column": "text",
+    "prompt_column": "instruction",
+    "response_column": "output",
+    "max_seq_length": 3072,
+    "instruction_template": "### Instruction:\n",
+    "response_template": "### Response:\n",
+    "val_split": 0.1,
+    "num_proc": 4
+  },
+  "training": {
+    "output_dir": "./outputs/legal-lora",
+    "num_train_epochs": 5,
+    "per_device_train_batch_size": 2,
+    "per_device_eval_batch_size": 2,
+    "gradient_accumulation_steps": 8,
+    "learning_rate": 1.5e-4,
+    "weight_decay": 0.001,
+    "lr_scheduler_type": "cosine_with_restarts",
+    "warmup_ratio": 0.03,
+    "bf16": true,
+    "tf32": true,
+    "logging_steps": 20,
+    "eval_strategy": "epoch",
+    "save_strategy": "epoch",
+    "save_total_limit": 2,
+    "report_to": "wandb",
+    "run_name": "llama2-13b-legal-lora",
+    "optim": "paged_adamw_32bit",
+    "max_grad_norm": 0.3,
+    "group_by_length": true
+  }
+}

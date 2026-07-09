@@ -26,10 +26,10 @@ rich
 loguru
 
 # Optional: Flash Attention (install separately)
-# flash-attn>=2.5.0  # requires CUDA toolkit, install with: pip install flash-attn --no-build-isolation
+ flash-attn>=2.5.0  # requires CUDA toolkit, install with: pip install flash-attn --no-build-isolation
 
 # Optional: DeepSpeed for multi-GPU
-# deepspeed>=0.13.0
+deepspeed>=0.13.0
 
 # Notebook support
 jupyter
