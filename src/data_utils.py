@@ -27,13 +27,12 @@ CHAT_PROMPT = "{system}\n\n" + "\n\n".join([
 ])
 
 
-# ─────────────────────────────────────────────
-# Format Converters
-# ─────────────────────────────────────────────
-
-def alpaca_to_text(row: dict) -> str:
+#Format Converters
+def text_to_alpaca(row: dict) -> str:
+    
     context_str = ", using the input below as context" if row.get("input") else ""
     input_block = f"### Input:\n{row['input']}\n\n" if row.get("input") else ""
+    
     return ALPACA_PROMPT.format(
         context_str=context_str,
         instruction=row["instruction"],
@@ -42,7 +41,7 @@ def alpaca_to_text(row: dict) -> str:
     )
 
 
-def sharegpt_to_text(row: dict, system_prompt: str = "") -> str:
+def text_to_sharegpt(row: dict, system_prompt: str = "") -> str:
     """Convert ShareGPT multi-turn conversation to text."""
     parts = []
     if system_prompt:
@@ -53,12 +52,11 @@ def sharegpt_to_text(row: dict, system_prompt: str = "") -> str:
     return "\n\n".join(parts)
 
 
-def raw_text_chunker(
-    text: str,
-    chunk_size: int = 1024,
-    overlap: int = 128,
-) -> List[str]:
+def raw_text_chunker(text: str, chunk_size: int = 1024,
+    overlap: int = 128) -> List[str]:
+
     """Split long text into overlapping chunks for pre-training style datasets."""
+    
     words = text.split()
     chunks = []
     i = 0
@@ -87,7 +85,7 @@ def build_medical_qa_dataset(source_path: str, output_path: str):
             "instruction": item["question"],
             "input": item.get("context", ""),
             "output": item["answer"],
-            "text": alpaca_to_text({
+            "text": text_to_alpaca({
                 "instruction": item["question"],
                 "input": item.get("context", ""),
                 "output": item["answer"],
@@ -116,7 +114,7 @@ def build_code_instruct_dataset(source_path: str, output_path: str):
             "instruction": instruction,
             "input": "",
             "output": f"```{lang}\n{item['completion']}\n```",
-            "text": alpaca_to_text({
+            "text": text_to_alpaca({
                 "instruction": instruction,
                 "input": "",
                 "output": f"```{lang}\n{item['completion']}\n```",
@@ -149,7 +147,7 @@ def build_legal_dataset(source_path: str, output_path: str):
             "instruction": instruction,
             "input": item["document"],
             "output": item["summary"],
-            "text": alpaca_to_text({
+            "text": text_to_alpaca({
                 "instruction": instruction,
                 "input": item["document"],
                 "output": item["summary"],
@@ -184,7 +182,7 @@ def load_csv_as_instruct(
                 "instruction": instruction,
                 "input": inp,
                 "output": out,
-                "text": alpaca_to_text({"instruction": instruction, "input": inp, "output": out}),
+                "text": text_to_alpaca({"instruction": instruction, "input": inp, "output": out}),
             })
     return Dataset.from_list(rows)
 
