@@ -1,0 +1,39 @@
+# LoRA/QLoRA Fine-tuning Requirements
+# Python >= 3.10
+
+# Core ML
+torch
+torchvision
+transformers
+datasets
+tokenizers
+accelerate
+peft
+trl
+safetensors
+bitsandbytes
+rouge-score
+bert-score
+nltk
+sacrebleu
+wandb
+pandas
+numpy
+pyarrow
+tqdm
+pyyaml
+rich
+loguru
+
+# Optional: Flash Attention (install separately)
+# flash-attn>=2.5.0  # requires CUDA toolkit, install with: pip install flash-attn --no-build-isolation
+
+# Optional: DeepSpeed for multi-GPU
+# deepspeed>=0.13.0
+
+# Notebook support
+jupyter
+ipywidgets
+matplotlib
+seaborn
+plotly
