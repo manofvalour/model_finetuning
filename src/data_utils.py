@@ -10,6 +10,7 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Optional, Callable
 from datasets import Dataset, DatasetDict
+import torch
 
 logger = logging.getLogger(__name__)
 
@@ -186,6 +187,32 @@ def load_csv_as_instruct(
             })
     return Dataset.from_list(rows)
 
+
+def mask_prompt_tokens(tokenizer, prompt_template: str, response_template: str):
+    """
+    Returns a data collator that masks loss on prompt tokens.
+    Only computes loss on the response portion.
+    """
+    response_token_ids = tokenizer.encode(response_template, add_special_tokens=False)
+
+    def collate_fn(examples):
+        input_ids = [torch.tensor(e["input_ids"]) for e in examples]
+        labels = [torch.tensor(e["input_ids"]).clone() for e in examples]
+
+        for label in labels:
+            # Find where the response starts and mask everything before it
+            for i in range(len(label) - len(response_token_ids) + 1):
+                if label[i : i + len(response_token_ids)].tolist() == response_token_ids:
+                    label[:i] = -100  # -100 = ignore in CrossEntropyLoss
+                    break
+
+        # Pad sequences
+        input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=True, padding_value=tokenizer.pad_token_id)
+        labels    = torch.nn.utils.rnn.pad_sequence(labels,    batch_first=True, padding_value=-100)
+
+        return {"input_ids": input_ids, "labels": labels, "attention_mask": input_ids.ne(tokenizer.pad_token_id)}
+
+    return collate_fn
 
 def train_val_test_split(
     dataset: Dataset,
